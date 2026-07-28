@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { average, invertRiskToHealth, participationRate, toHealthScale } from '@/domain/scoring';
 import { buildUserWhere, type DashboardFilters } from '@/lib/data/filters';
+import { applyKAnonymity, DEFAULT_K_ANONYMITY_THRESHOLD, type KAnonymityResult } from '@/lib/data/k-anonymity';
 
 function daysAgo(days: number) {
   return new Date(Date.now() - days * 24 * 60 * 60 * 1000);
@@ -34,11 +35,17 @@ export interface RiskSummary {
 export async function getOrganisationSnapshot(
   organizationId: string,
   filters: DashboardFilters
-): Promise<OrganisationSnapshot> {
+): Promise<KAnonymityResult<OrganisationSnapshot>> {
   const since = daysAgo(filters.rangeDays);
   const previousSince = daysAgo(filters.rangeDays * 2);
   const userWhere = buildUserWhere(organizationId, filters);
   const scopedUser = { user: userWhere };
+
+  const org = await prisma.organization.findUnique({
+    where: { id: organizationId },
+    select: { kAnonymityThreshold: true },
+  });
+  const threshold = org?.kAnonymityThreshold ?? DEFAULT_K_ANONYMITY_THRESHOLD;
 
   const [who5Recent, batRecent, risks, activeSpeakUpCases, totalEmployees, recentParticipants, previousParticipants] =
     await Promise.all([
@@ -58,7 +65,7 @@ export async function getOrganisationSnapshot(
         },
       }),
       prisma.speakUpReport.count({ where: { organizationId, status: { notIn: ['RESOLVED', 'CLOSED'] } } }),
-      prisma.user.count({ where: userWhere }),
+      prisma.person.count({ where: userWhere }),
       prisma.checkIn.findMany({
         where: {
           organizationId,
@@ -107,7 +114,10 @@ export async function getOrganisationSnapshot(
   const trendingImprovements = risks.filter((r) => r.trend === 'IMPROVING').slice(0, 5).map(toSummary);
   const highRiskAreas = risks.filter((r) => r.priority === 'HIGH' || r.priority === 'CRITICAL').slice(0, 5).map(toSummary);
 
-  return {
+  // The filtered population size is the cohort-size gate: a narrow filter combination
+  // (e.g. one team at one location) can re-identify someone even with no name attached,
+  // so every number derived from it is suppressed below the org's k-anonymity threshold.
+  return applyKAnonymity(totalEmployees, {
     wellbeingScore,
     organisationHealthScore,
     burnoutIndex,
@@ -120,7 +130,7 @@ export async function getOrganisationSnapshot(
     emergingRisks,
     trendingImprovements,
     highRiskAreas,
-  };
+  }, threshold);
 }
 
 export async function getRecentActivity(organizationId: string, limit = 20) {
@@ -149,7 +159,10 @@ export async function getWellbeingTrend(organizationId: string, days = 90) {
     byWeek.set(key, bucket);
   }
 
+  // Suppress any week whose bucket is too small to protect anonymity, same threshold
+  // as the rest of the dashboard.
   return Array.from(byWeek.entries())
+    .filter(([, scores]) => scores.length >= DEFAULT_K_ANONYMITY_THRESHOLD)
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([week, scores]) => ({ week, score: Math.round(average(scores)) }));
 }

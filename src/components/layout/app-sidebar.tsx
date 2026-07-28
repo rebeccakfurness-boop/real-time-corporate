@@ -5,10 +5,22 @@ import { usePathname } from 'next/navigation';
 import { ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { leaderNavItems, employeeNavItems } from './nav-items';
+import { can, type Permission } from '@/lib/rbac';
+import type { PlatformRole } from '@prisma/client';
 
-export function AppSidebar({ variant, title }: { variant: 'leader' | 'employee'; title: string }) {
+export function AppSidebar({
+  variant,
+  title,
+  role,
+}: {
+  variant: 'leader' | 'employee';
+  title: string;
+  role: PlatformRole;
+}) {
   const pathname = usePathname();
-  const items = variant === 'leader' ? leaderNavItems : employeeNavItems;
+  const items = (variant === 'leader' ? leaderNavItems : employeeNavItems).filter(
+    (item) => !item.permission || can(role, item.permission as Permission)
+  );
 
   return (
     <aside className="hidden w-60 shrink-0 flex-col border-r border-border bg-card/50 md:flex">

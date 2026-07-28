@@ -24,6 +24,11 @@ export default function SignInPage() {
             Speak Up without signing in
           </a>
         </p>
+        <p className="mt-2 text-center text-xs text-muted-foreground">
+          <a href="/privacy" className="hover:underline">
+            How chnnl protects your privacy
+          </a>
+        </p>
       </div>
     </div>
   );

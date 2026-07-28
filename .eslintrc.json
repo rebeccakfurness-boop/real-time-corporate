@@ -1,3 +1,41 @@
 {
-  "extends": "next/core-web-vitals"
+  "extends": "next/core-web-vitals",
+  "overrides": [
+    {
+      "files": ["src/**/*.ts", "src/**/*.tsx"],
+      "excludedFiles": ["src/lib/identity/**", "src/lib/platform/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["*/lib/identity/db", "@/lib/identity/db"],
+                "message": "The identity-scoped Prisma client is restricted to src/lib/identity/*. Import from '@/lib/identity' (the narrow public API) instead."
+              },
+              {
+                "group": ["*/lib/platform/db", "@/lib/platform/db"],
+                "message": "The platform-scoped Prisma client is restricted to src/lib/platform/*. Import from '@/lib/platform' (the narrow public API) instead."
+              }
+            ]
+          }
+        ],
+        "no-restricted-syntax": [
+          "error",
+          {
+            "selector": "MemberExpression[property.name='identityRecord']",
+            "message": "identity.identityRecord (PII) may only be queried from src/lib/identity/*."
+          },
+          {
+            "selector": "MemberExpression[property.name='platformStaffAccount']",
+            "message": "platform.platformStaffAccount may only be queried from src/lib/platform/*."
+          },
+          {
+            "selector": "MemberExpression[property.name='breakGlassUnlock']",
+            "message": "platform.breakGlassUnlock may only be queried from src/lib/platform/*."
+          }
+        ]
+      }
+    }
+  ]
 }

@@ -10,7 +10,7 @@ export default async function EmployeeLayout({ children }: { children: React.Rea
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <AppSidebar variant="employee" title="Employee Platform" />
+      <AppSidebar variant="employee" title="Employee Platform" role={session.user.role} />
       <div className="flex flex-1 flex-col overflow-hidden">
         <AppTopbar userName={session.user.name} roleLabel={ROLE_LABELS[session.user.role] ?? session.user.role} />
         <main className="flex-1 overflow-y-auto scrollbar-thin p-4 md:p-6">{children}</main>

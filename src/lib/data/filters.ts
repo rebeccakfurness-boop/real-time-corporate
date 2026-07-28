@@ -38,8 +38,8 @@ export function parseDashboardFilters(sp: Record<string, string | string[] | und
   };
 }
 
-/** Builds a Prisma User `where` clause (scoped to the tenant) from the active dashboard filters. */
-export function buildUserWhere(organizationId: string, filters: DashboardFilters): Prisma.UserWhereInput {
+/** Builds a Prisma Person `where` clause (scoped to the tenant) from the active dashboard filters. */
+export function buildUserWhere(organizationId: string, filters: DashboardFilters): Prisma.PersonWhereInput {
   return {
     organizationId,
     status: 'ACTIVE',

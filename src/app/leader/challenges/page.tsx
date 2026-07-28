@@ -3,15 +3,19 @@ import { prisma } from '@/lib/prisma';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Trophy } from 'lucide-react';
+import { pseudonymFor } from '@/lib/pseudonym';
 
 export default async function ChallengesPage() {
   const session = await auth();
   if (!session) return null;
 
+  // Leaderboards are a leader-tier view, so participants are shown under a fun,
+  // deterministic pseudonym rather than their name — same identity boundary as every
+  // other leader-facing surface (see Part C).
   const challenges = await prisma.challenge.findMany({
     where: { organizationId: session.user.organizationId },
     orderBy: { startsAt: 'desc' },
-    include: { participants: { orderBy: { points: 'desc' }, take: 5, include: { user: { select: { name: true } } } } },
+    include: { participants: { orderBy: { points: 'desc' }, take: 5 } },
   });
 
   return (
@@ -47,7 +51,7 @@ export default async function ChallengesPage() {
                     <li key={p.id} className="flex items-center justify-between text-sm">
                       <span className="flex items-center gap-2">
                         <span className="w-4 text-xs text-muted-foreground">{i + 1}</span>
-                        {p.user.name}
+                        {pseudonymFor(p.userId)}
                       </span>
                       <span className="font-medium tabular-nums">{p.points} pts</span>
                     </li>

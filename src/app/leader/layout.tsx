@@ -11,7 +11,7 @@ export default async function LeaderLayout({ children }: { children: React.React
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <AppSidebar variant="leader" title="Leader Dashboard" />
+      <AppSidebar variant="leader" title="Leader Dashboard" role={session.user.role} />
       <div className="flex flex-1 flex-col overflow-hidden">
         <AppTopbar userName={session.user.name} roleLabel={ROLE_LABELS[session.user.role] ?? session.user.role} />
         <main className="flex-1 overflow-y-auto scrollbar-thin p-4 md:p-6">{children}</main>

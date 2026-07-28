@@ -2,28 +2,45 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Realtime brand tokens (Corporate arm). See DESIGN_TOKENS.md for the source palette,
+ * approved contrast pairings, and the reasoning behind the couple of deliberate
+ * deviations from a literal reading of the brand brief (muted-foreground, generic
+ * --accent vs. the reserved teal scale). Run `pnpm check:contrast` after touching any
+ * hex value below.
+ */
+
 @layer base {
   :root {
-    --background: 220 25% 98%;
-    --foreground: 222 30% 12%;
+    --background: 228 38% 97%;   /* Neutral 50  #F6F7FB */
+    --foreground: 222 39% 13%;   /* Neutral 900 #141C2E */
 
-    --card: 0 0% 100%;
-    --card-foreground: 222 30% 12%;
+    --card: 225 25% 94%;         /* Neutral 100 #EBEDF3 — brief: "Card backgrounds" */
+    --card-foreground: 222 39% 13%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 30% 12%;
+    --popover-foreground: 222 39% 13%;
 
-    --primary: 245 58% 51%;
+    --primary: 233 61% 56%;      /* Primary Deep 500 #4C5BD4 */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 222 20% 95%;
-    --secondary-foreground: 222 30% 16%;
+    --secondary: 225 25% 94%;    /* Neutral 100 */
+    --secondary-foreground: 222 39% 13%;
 
-    --muted: 222 20% 95%;
-    --muted-foreground: 222 12% 45%;
+    --muted: 225 25% 94%;        /* Neutral 100 */
+    /* Deliberately Neutral 600, not the literal Neutral 500 "Muted" swatch: 500 on this
+     * background is 4.06:1, below AA for small text (the brief itself scopes 500 to
+     * "large text/UI only"). --muted-foreground is used at caption size throughout the
+     * app, so it needs to hold at every size — see DESIGN_TOKENS.md. Neutral 500 is
+     * still available directly (`text-neutral-500`) for the large-text/UI contexts the
+     * brief describes (icons, larger badge labels). */
+    --muted-foreground: 217 13% 39%;
 
-    --accent: 245 58% 96%;
-    --accent-foreground: 245 58% 30%;
+    /* Generic interactive hover/selected tint (menu items, select options) — a light
+     * primary tint, NOT the reserved teal accent. Wiring teal into every hover state
+     * would violate the "one accent moment per screen, max" rule. */
+    --accent: 232 61% 93%;       /* Primary Deep 100 */
+    --accent-foreground: 233 47% 34%; /* Primary Deep 700 */
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
@@ -34,40 +51,78 @@
     --warning: 38 92% 50%;
     --warning-foreground: 32 40% 12%;
 
-    --border: 222 20% 90%;
-    --input: 222 20% 88%;
-    --ring: 245 58% 51%;
+    --border: 225 21% 89%;       /* Neutral 200 #DDE0E9 */
+    --input: 225 21% 89%;
+    --ring: 233 61% 56%;
 
     --risk-low: 152 55% 38%;
     --risk-moderate: 38 92% 50%;
     --risk-high: 22 90% 55%;
     --risk-critical: 0 72% 51%;
 
+    /* Primary Deep — full scale */
+    --primary-50: 235 65% 97%;
+    --primary-100: 232 61% 93%;
+    --primary-200: 233 61% 86%;
+    --primary-300: 234 61% 79%;
+    --primary-400: 233 61% 69%;
+    --primary-500: 233 61% 56%;
+    --primary-600: 233 47% 45%;
+    --primary-700: 233 47% 34%;
+    --primary-800: 233 48% 23%;
+    --primary-900: 234 47% 13%;
+
+    /* Neutrals — full scale (300/400/600/700/800 interpolated from the brief's 50/100/200/500/900) */
+    --neutral-50: 228 38% 97%;
+    --neutral-100: 225 25% 94%;
+    --neutral-200: 225 21% 89%;
+    --neutral-300: 219 14% 75%;
+    --neutral-400: 218 11% 62%;
+    --neutral-500: 216 11% 49%;
+    --neutral-600: 217 13% 39%;
+    --neutral-700: 219 17% 30%;
+    --neutral-800: 219 24% 22%;
+    --neutral-900: 222 39% 13%;
+
+    /* Reserved accent teal — see DESIGN_TOKENS.md before using. Full scale interpolated
+     * from the brief's 100/500/700 for completeness; usage stays capped regardless. */
+    --teal-50: 176 68% 95%;
+    --teal-100: 176 67% 92%;
+    --teal-200: 176 67% 76%;
+    --teal-300: 175 67% 65%;
+    --teal-400: 175 67% 55%;
+    --teal-500: 175 72% 48%;
+    --teal-600: 175 72% 38%;
+    --teal-700: 175 73% 29%;
+    --teal-800: 175 71% 20%;
+    --teal-900: 175 66% 14%;
+
     --radius: 0.75rem;
     --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    --font-display: 'Fraunces', Georgia, serif;
   }
 
   .dark {
-    --background: 222 32% 7%;
-    --foreground: 220 20% 96%;
+    --background: 234 47% 13%;   /* Primary Deep 900 — branded dark bg, not generic gray */
+    --foreground: 228 38% 97%;
 
-    --card: 222 28% 10%;
-    --card-foreground: 220 20% 96%;
+    --card: 233 48% 23%;         /* Primary Deep 800 */
+    --card-foreground: 228 38% 97%;
 
-    --popover: 222 28% 10%;
-    --popover-foreground: 220 20% 96%;
+    --popover: 233 48% 23%;
+    --popover-foreground: 228 38% 97%;
 
-    --primary: 245 70% 66%;
-    --primary-foreground: 222 32% 8%;
+    --primary: 233 61% 69%;      /* Primary Deep 400 — lighter for legibility on dark bg */
+    --primary-foreground: 234 47% 13%;
 
-    --secondary: 222 24% 15%;
-    --secondary-foreground: 220 20% 92%;
+    --secondary: 233 47% 34%;    /* Primary Deep 700 */
+    --secondary-foreground: 228 38% 97%;
 
-    --muted: 222 24% 15%;
-    --muted-foreground: 220 12% 65%;
+    --muted: 233 47% 34%;
+    --muted-foreground: 234 61% 79%; /* Primary Deep 300 */
 
-    --accent: 245 40% 20%;
-    --accent-foreground: 245 70% 85%;
+    --accent: 233 48% 23%;
+    --accent-foreground: 232 61% 93%;
 
     --destructive: 0 62% 55%;
     --destructive-foreground: 0 0% 100%;
@@ -78,9 +133,9 @@
     --warning: 38 85% 55%;
     --warning-foreground: 32 40% 10%;
 
-    --border: 222 22% 18%;
-    --input: 222 22% 18%;
-    --ring: 245 70% 66%;
+    --border: 233 47% 34%;
+    --input: 233 47% 34%;
+    --ring: 233 61% 69%;
 
     --risk-low: 152 45% 45%;
     --risk-moderate: 38 85% 55%;
@@ -97,6 +152,15 @@
     @apply bg-background text-foreground antialiased;
     font-feature-settings: 'cv11', 'ss01';
   }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  h1 { @apply text-h1; }
+  h2 { @apply text-h2; }
+  h3 { @apply text-h3; }
+  h4 { @apply text-h4; }
 }
 
 @layer utilities {

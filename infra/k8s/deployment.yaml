@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chnnl-web
+  labels:
+    app: chnnl-web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: chnnl-web
+  template:
+    metadata:
+      labels:
+        app: chnnl-web
+    spec:
+      containers:
+        - name: web
+          image: ghcr.io/your-org/chnnl-web:latest
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - secretRef:
+                name: chnnl-web-secrets
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: '1'
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chnnl-web
+spec:
+  selector:
+    app: chnnl-web
+  ports:
+    - port: 80
+      targetPort: 3000
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: chnnl-web
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  tls:
+    - hosts: [app.chnnl.example]
+      secretName: chnnl-web-tls
+  rules:
+    - host: app.chnnl.example
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: chnnl-web
+                port:
+                  number: 80

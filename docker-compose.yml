@@ -1,0 +1,52 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: chnnl
+      POSTGRES_PASSWORD: chnnl
+      POSTGRES_DB: chnnl
+    ports:
+      - '5432:5432'
+    volumes:
+      - chnnl_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U chnnl']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - chnnl_redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://chnnl:chnnl@postgres:5432/chnnl?schema=public
+      REDIS_URL: redis://redis:6379
+      AUTH_URL: http://localhost:3000
+      AUTH_SECRET: ${AUTH_SECRET:-dev-only-insecure-secret-change-me}
+    ports:
+      - '3000:3000'
+
+volumes:
+  chnnl_postgres_data:
+  chnnl_redis_data:

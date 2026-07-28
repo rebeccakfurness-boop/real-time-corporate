@@ -1,0 +1,815 @@
+// chnnl — Enterprise Psychological Safety, Wellbeing & Psychosocial Risk Intelligence Platform
+// Domain model. Multi-tenant by Organization; every leaf entity carries organizationId
+// so row-level tenant isolation can be enforced consistently at the data-access layer.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Tenancy, org structure & identity
+// ─────────────────────────────────────────────────────────────────────────
+
+model Organization {
+  id            String   @id @default(cuid())
+  name          String
+  slug          String   @unique
+  industry      String?
+  logoUrl       String?
+  timezone      String   @default("Pacific/Auckland")
+  planTier      PlanTier @default(GROWTH)
+  ssoDomain     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  users          User[]
+  divisions      Division[]
+  departments    Department[]
+  teams          Team[]
+  locations      Location[]
+  workplaceGroups WorkplaceGroup[]
+  checkIns       CheckIn[]
+  who5Results    Who5Result[]
+  batResults     BatResult[]
+  surveys        Survey[]
+  surveyResponses SurveyResponse[]
+  speakUpReports SpeakUpReport[]
+  risks          PsychosocialRisk[]
+  recommendations Recommendation[]
+  challenges     Challenge[]
+  reports        Report[]
+  auditLogs      AuditLog[]
+  activityEvents ActivityEvent[]
+  learningResources LearningResource[]
+  notifications  Notification[]
+
+  @@map("organizations")
+}
+
+enum PlanTier {
+  STARTER
+  GROWTH
+  ENTERPRISE
+}
+
+model Division {
+  id             String   @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  departments    Department[]
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId])
+  @@map("divisions")
+}
+
+model Department {
+  id             String   @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  divisionId     String?
+  division       Division? @relation(fields: [divisionId], references: [id])
+  name           String
+  teams          Team[]
+  users          User[]
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId])
+  @@map("departments")
+}
+
+model Team {
+  id             String   @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  departmentId   String?
+  department     Department? @relation(fields: [departmentId], references: [id])
+  name           String
+  managerId      String?
+  manager        User?    @relation("TeamManager", fields: [managerId], references: [id])
+  members        User[]   @relation("TeamMembers")
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId])
+  @@map("teams")
+}
+
+model Location {
+  id             String   @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  region         String?
+  country        String?
+  users          User[]
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId])
+  @@map("locations")
+}
+
+model WorkplaceGroup {
+  id             String   @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  description    String?
+  users          User[]
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId])
+  @@map("workplace_groups")
+}
+
+enum PlatformRole {
+  PLATFORM_OWNER
+  ORG_ADMIN
+  EXECUTIVE
+  PEOPLE_AND_CULTURE
+  HEALTH_AND_SAFETY
+  DEPARTMENT_MANAGER
+  LEADER
+  EMPLOYEE
+}
+
+enum SeniorityLevel {
+  EXECUTIVE
+  SENIOR_LEADER
+  MANAGER
+  TEAM_LEAD
+  INDIVIDUAL_CONTRIBUTOR
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CASUAL
+  FIXED_TERM
+  CONTRACTOR
+}
+
+model User {
+  id             String   @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  email          String   @unique
+  passwordHash   String?
+  name           String
+  avatarUrl      String?
+
+  role           PlatformRole @default(EMPLOYEE)
+  roleType       String?
+  seniority      SeniorityLevel?
+  employmentType EmploymentType?
+
+  departmentId   String?
+  department     Department? @relation(fields: [departmentId], references: [id])
+  locationId     String?
+  location       Location? @relation(fields: [locationId], references: [id])
+  workplaceGroupId String?
+  workplaceGroup WorkplaceGroup? @relation(fields: [workplaceGroupId], references: [id])
+
+  managedTeams   Team[]   @relation("TeamManager")
+  teams          Team[]   @relation("TeamMembers")
+
+  mfaEnabled     Boolean  @default(false)
+  mfaSecret      String?
+  emailVerified  DateTime?
+  lastLoginAt    DateTime?
+  status         UserStatus @default(ACTIVE)
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  checkIns       CheckIn[]
+  who5Results    Who5Result[]
+  batResults     BatResult[]
+  surveyResponses SurveyResponse[]
+  speakUpReports SpeakUpReport[]        @relation("ReportOwnerInternal")
+  riskOwnerOf    PsychosocialRisk[]     @relation("RiskOwner")
+  challengeEntries ChallengeParticipant[]
+  auditLogs      AuditLog[]
+  notifications  Notification[]
+  sessions       Session[]
+  accounts       Account[]
+
+  @@index([organizationId])
+  @@index([departmentId])
+  @@map("users")
+}
+
+enum UserStatus {
+  ACTIVE
+  INVITED
+  SUSPENDED
+  DEACTIVATED
+}
+
+// Auth.js required models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expires      DateTime
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Wellbeing domains (shared taxonomy used across check-ins, surveys, risks)
+// ─────────────────────────────────────────────────────────────────────────
+
+enum WellbeingDomain {
+  WORK_DESIGN
+  CULTURE_AND_LEADERSHIP
+  SOCIAL_CONNECTIONS
+  MANA_WHENUA
+  DEI
+  PERSONAL_FACTORS
+  PSYCHOLOGICAL_SAFETY
+  PSYCHOSOCIAL_RISK
+  BURNOUT_BAT
+  WHO5
+  TE_WHARE_TAPA_WHA
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Measurement: daily check-ins, WHO-5, BAT burnout, surveys
+// ─────────────────────────────────────────────────────────────────────────
+
+model CheckIn {
+  id             String   @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  moodScore      Int      // 1-5
+  energyScore    Int      // 1-5
+  stressScore    Int      // 1-5
+  workloadScore  Int?     // 1-5
+  reflection     String?  @db.Text
+  domain         WellbeingDomain @default(PERSONAL_FACTORS)
+
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId, createdAt])
+  @@index([userId, createdAt])
+  @@map("check_ins")
+}
+
+model Who5Result {
+  id             String   @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Raw item scores, 0-5 each, per WHO-5 instrument
+  q1Cheerful     Int
+  q2Calm         Int
+  q3Active       Int
+  q4RestedFresh  Int
+  q5Interesting  Int
+
+  rawScore       Int      // sum 0-25
+  percentageScore Int     // rawScore * 4, 0-100
+  belowThreshold Boolean  // true if percentageScore <= 50 (screening flag)
+
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId, createdAt])
+  @@index([userId, createdAt])
+  @@map("who5_results")
+}
+
+model BatResult {
+  id             String   @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  exhaustionScore    Float
+  mentalDistanceScore Float
+  cognitiveImpairmentScore Float
+  emotionalImpairmentScore Float
+  coreBurnoutScore   Float  // mean of exhaustion + mental distance
+  secondaryScore     Float  // mean of cognitive + emotional impairment
+  overallScore       Float
+  riskBand           BurnoutRiskBand
+
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId, createdAt])
+  @@index([userId, createdAt])
+  @@map("bat_results")
+}
+
+enum BurnoutRiskBand {
+  LOW
+  MODERATE
+  HIGH
+  CRITICAL
+}
+
+model Survey {
+  id             String   @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  title          String
+  description    String?  @db.Text
+  domain         WellbeingDomain
+  status         SurveyStatus @default(DRAFT)
+  questions      SurveyQuestion[]
+  responses      SurveyResponse[]
+  opensAt        DateTime?
+  closesAt       DateTime?
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId])
+  @@map("surveys")
+}
+
+enum SurveyStatus {
+  DRAFT
+  ACTIVE
+  CLOSED
+  ARCHIVED
+}
+
+model SurveyQuestion {
+  id        String   @id @default(cuid())
+  surveyId  String
+  survey    Survey   @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  prompt    String
+  type      QuestionType @default(LIKERT_5)
+  domain    WellbeingDomain
+  order     Int      @default(0)
+  answers   SurveyAnswer[]
+
+  @@index([surveyId])
+  @@map("survey_questions")
+}
+
+enum QuestionType {
+  LIKERT_5
+  LIKERT_7
+  YES_NO
+  FREE_TEXT
+  MULTIPLE_CHOICE
+}
+
+model SurveyResponse {
+  id             String   @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  surveyId       String
+  survey         Survey   @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  userId         String?  // nullable to support anonymous survey modes
+  user           User?    @relation(fields: [userId], references: [id])
+  answers        SurveyAnswer[]
+  submittedAt    DateTime @default(now())
+
+  @@index([organizationId])
+  @@index([surveyId])
+  @@map("survey_responses")
+}
+
+model SurveyAnswer {
+  id           String   @id @default(cuid())
+  responseId   String
+  response     SurveyResponse @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  questionId   String
+  question     SurveyQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  numericValue Int?
+  textValue    String?  @db.Text
+
+  @@index([responseId])
+  @@map("survey_answers")
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Psychosocial risk intelligence & risk management
+// ─────────────────────────────────────────────────────────────────────────
+
+enum RiskCategory {
+  WORK_DEMANDS
+  ROLE_CLARITY
+  LEADERSHIP
+  RECOGNITION
+  WORK_RELATIONSHIPS
+  BULLYING
+  HARASSMENT
+  CHANGE_MANAGEMENT
+  JOB_CONTROL
+  SUPPORT
+  INCLUSION
+  PSYCHOLOGICAL_SAFETY
+  FATIGUE
+  BURNOUT
+  ISOLATION
+  ORGANISATIONAL_JUSTICE
+}
+
+enum RiskTrend {
+  IMPROVING
+  STABLE
+  WORSENING
+}
+
+enum RiskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum RiskStatus {
+  IDENTIFIED
+  MONITORING
+  ACTION_PLANNED
+  IN_PROGRESS
+  RESOLVED
+}
+
+model PsychosocialRisk {
+  id             String   @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  category       RiskCategory
+  title          String
+  summary        String   @db.Text
+  whyItMatters   String   @db.Text
+  contributingFactors String[] @default([])
+
+  currentScore   Float    // 0-100, higher = more risk
+  trend          RiskTrend @default(STABLE)
+  likelihood     Int      // 1-5
+  impact         Int      // 1-5
+  priority       RiskPriority
+  confidence     Int      // 0-100
+
+  status         RiskStatus @default(IDENTIFIED)
+  ownerId        String?
+  owner          User?    @relation("RiskOwner", fields: [ownerId], references: [id])
+
+  departmentScope String?  // optional department name/id filter context
+  locationScope   String?
+  evidenceSummary String? @db.Text
+
+  recommendations Recommendation[]
+  history        RiskHistoryPoint[]
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([organizationId, status])
+  @@index([organizationId, priority])
+  @@map("psychosocial_risks")
+}
+
+model RiskHistoryPoint {
+  id        String   @id @default(cuid())
+  riskId    String
+  risk      PsychosocialRisk @relation(fields: [riskId], references: [id], onDelete: Cascade)
+  score     Float
+  recordedAt DateTime @default(now())
+
+  @@index([riskId, recordedAt])
+  @@map("risk_history_points")
+}
+
+enum RecommendationType {
+  LEADERSHIP_ACTION
+  POLICY
+  COMMUNICATION
+  MANAGER_COACHING
+  TEAM_INTERVENTION
+  WORK_REDESIGN
+  ROLE_CLARIFICATION
+  RECOGNITION
+  FLEXIBLE_WORK
+  PROCESS_IMPROVEMENT
+  PSYCH_SAFETY_INITIATIVE
+  WORKSHOP
+  LEARNING_RESOURCE
+}
+
+model Recommendation {
+  id             String   @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  riskId         String?
+  risk           PsychosocialRisk? @relation(fields: [riskId], references: [id], onDelete: SetNull)
+
+  type           RecommendationType
+  title          String
+  description    String   @db.Text
+  expectedImpact String?
+  effortLevel    EffortLevel @default(MEDIUM)
+  status         RecommendationStatus @default(SUGGESTED)
+
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId])
+  @@map("recommendations")
+}
+
+enum EffortLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum RecommendationStatus {
+  SUGGESTED
+  ACCEPTED
+  IN_PROGRESS
+  COMPLETED
+  DISMISSED
+}
+
+model LearningResource {
+  id             String   @id @default(cuid())
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  title          String
+  type           LearningResourceType
+  domain         WellbeingDomain
+  relatedRiskCategories RiskCategory[] @default([])
+  summary        String   @db.Text
+  url            String?
+  durationMinutes Int?
+
+  createdAt      DateTime @default(now())
+
+  @@map("learning_resources")
+}
+
+enum LearningResourceType {
+  ARTICLE
+  RESEARCH_SUMMARY
+  VIDEO
+  GUIDE
+  TEMPLATE
+  TOOLKIT
+  WORKSHOP
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Speak Up (anonymous reporting)
+// ─────────────────────────────────────────────────────────────────────────
+
+enum SpeakUpCategory {
+  BULLYING
+  HARASSMENT
+  UNSAFE_BEHAVIOUR
+  PSYCHOLOGICAL_SAFETY
+  WORKPLACE_ISSUE
+  ETHICAL_CONCERN
+  GENERAL_WELLBEING
+}
+
+enum SpeakUpStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  INVESTIGATING
+  ACTION_TAKEN
+  RESOLVED
+  CLOSED
+}
+
+model SpeakUpReport {
+  id             String   @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  // Anonymous tracking code shown to the submitter; never linked to identity in leader views
+  trackingCode   String   @unique
+  category       SpeakUpCategory
+  description    String   @db.Text
+  isAnonymous    Boolean  @default(true)
+  // Only set when the submitter opts in to identify themselves; never exposed on de-identified views
+  submittedById  String?
+  submittedBy    User?    @relation("ReportOwnerInternal", fields: [submittedById], references: [id])
+
+  departmentScope String?
+  locationScope   String?
+
+  status         SpeakUpStatus @default(SUBMITTED)
+  evidenceUrls   String[] @default([])
+  messages       SpeakUpMessage[]
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([organizationId, status])
+  @@map("speak_up_reports")
+}
+
+model SpeakUpMessage {
+  id          String   @id @default(cuid())
+  reportId    String
+  report      SpeakUpReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  fromLeader  Boolean  @default(false)
+  body        String   @db.Text
+  createdAt   DateTime @default(now())
+
+  @@index([reportId])
+  @@map("speak_up_messages")
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Team Challenges
+// ─────────────────────────────────────────────────────────────────────────
+
+enum ChallengeType {
+  STEPS
+  HYDRATION
+  MINDFULNESS
+  WALKING
+  GRATITUDE
+  LEARNING
+  CONNECTION
+  SLEEP
+  MOVEMENT
+  HEALTHY_HABITS
+}
+
+model Challenge {
+  id             String   @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  type           ChallengeType
+  description    String?  @db.Text
+  startsAt       DateTime
+  endsAt         DateTime
+  participants   ChallengeParticipant[]
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId])
+  @@map("challenges")
+}
+
+model ChallengeParticipant {
+  id          String   @id @default(cuid())
+  challengeId String
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  points      Int      @default(0)
+  streak      Int      @default(0)
+  badges      String[] @default([])
+  joinedAt    DateTime @default(now())
+
+  @@unique([challengeId, userId])
+  @@map("challenge_participants")
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Reporting engine
+// ─────────────────────────────────────────────────────────────────────────
+
+enum ReportType {
+  EXECUTIVE_SUMMARY
+  ORGANISATION_HEALTH
+  PSYCHOSOCIAL_RISK
+  PSYCHOLOGICAL_SAFETY
+  BOARD_REPORT
+  CUSTOM
+}
+
+enum ReportStatus {
+  GENERATING
+  READY
+  FAILED
+}
+
+model Report {
+  id             String   @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  type           ReportType
+  title          String
+  filters        Json?
+  status         ReportStatus @default(GENERATING)
+  pdfUrl         String?
+  generatedById  String?
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId])
+  @@map("reports")
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Live activity feed (de-identified) & notifications
+// ─────────────────────────────────────────────────────────────────────────
+
+enum ActivityEventType {
+  CHECKIN_SUBMITTED
+  PARTICIPATION_MILESTONE
+  RISK_EMERGING
+  RISK_IMPROVING
+  SPEAK_UP_SUBMITTED
+  BURNOUT_CHANGE
+  CHALLENGE_ACTIVITY
+  ORG_CHANGE
+}
+
+model ActivityEvent {
+  id             String   @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  type           ActivityEventType
+  message        String
+  departmentScope String?
+  locationScope   String?
+  severity       EventSeverity @default(INFO)
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId, createdAt])
+  @@map("activity_events")
+}
+
+enum EventSeverity {
+  INFO
+  POSITIVE
+  WARNING
+  CRITICAL
+}
+
+model Notification {
+  id             String   @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title          String
+  body           String
+  readAt         DateTime?
+  createdAt      DateTime @default(now())
+
+  @@index([userId, readAt])
+  @@map("notifications")
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Audit logging
+// ─────────────────────────────────────────────────────────────────────────
+
+model AuditLog {
+  id             String   @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String?
+  user           User?    @relation(fields: [userId], references: [id])
+  action         String
+  targetType     String?
+  targetId       String?
+  metadata       Json?
+  ipAddress      String?
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId, createdAt])
+  @@map("audit_logs")
+}

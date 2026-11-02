@@ -19,7 +19,7 @@ export default async function PlatformLayout({ children }: { children: React.Rea
             <ShieldAlert className="h-4 w-4" />
           </div>
           <div>
-            <p className="text-sm font-semibold leading-none">chnnl Platform</p>
+            <p className="text-sm font-semibold leading-none">Realtime Platform</p>
             <p className="text-[11px] leading-none text-muted-foreground">Staff console</p>
           </div>
         </div>

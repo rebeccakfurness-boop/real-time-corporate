@@ -2,7 +2,7 @@
   "name": "chnnl",
   "version": "0.1.0",
   "private": true,
-  "description": "chnnl — Enterprise Psychological Safety, Wellbeing and Psychosocial Risk Intelligence Platform",
+  "description": "Realtime Wellbeing — Enterprise Psychological Safety, Wellbeing and Psychosocial Risk Intelligence Platform",
   "scripts": {
     "postinstall": "prisma generate",
     "dev": "next dev",

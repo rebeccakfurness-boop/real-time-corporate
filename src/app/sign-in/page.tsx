@@ -10,7 +10,7 @@ export default function SignInPage() {
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <ShieldCheck className="h-5 w-5" />
           </div>
-          <h1 className="text-xl font-semibold">chnnl</h1>
+          <h1 className="text-xl font-semibold">Realtime</h1>
           <p className="text-sm text-muted-foreground">Psychological safety &amp; wellbeing intelligence</p>
         </div>
 
@@ -26,7 +26,7 @@ export default function SignInPage() {
         </p>
         <p className="mt-2 text-center text-xs text-muted-foreground">
           <a href="/privacy" className="hover:underline">
-            How chnnl protects your privacy
+            How Realtime protects your privacy
           </a>
         </p>
       </div>

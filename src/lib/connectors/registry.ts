@@ -88,15 +88,15 @@ export const CONNECTOR_REGISTRY: Record<string, ConnectorDefinition> = {
 
   POWER_BI: stub({
     provider: 'POWER_BI', category: 'BUSINESS_INTELLIGENCE', displayName: 'Power BI',
-    description: 'Export and live-connect chnnl data for enterprise BI reporting.',
+    description: 'Export and live-connect Realtime data for enterprise BI reporting.',
   }),
   TABLEAU: stub({
     provider: 'TABLEAU', category: 'BUSINESS_INTELLIGENCE', displayName: 'Tableau',
-    description: 'Export and live-connect chnnl data for enterprise BI reporting.',
+    description: 'Export and live-connect Realtime data for enterprise BI reporting.',
   }),
   LOOKER: stub({
     provider: 'LOOKER', category: 'BUSINESS_INTELLIGENCE', displayName: 'Looker',
-    description: 'Export and live-connect chnnl data for enterprise BI reporting.',
+    description: 'Export and live-connect Realtime data for enterprise BI reporting.',
   }),
 
   MICROSOFT_PLANNER: stub({
@@ -139,15 +139,15 @@ export const CONNECTOR_REGISTRY: Record<string, ConnectorDefinition> = {
 
   POWER_AUTOMATE: stub({
     provider: 'POWER_AUTOMATE', category: 'WORKFLOW_AUTOMATION', displayName: 'Power Automate',
-    description: 'Rule-based automation on chnnl events — e.g. escalate a risk to a review task when it crosses High.',
+    description: 'Rule-based automation on Realtime events — e.g. escalate a risk to a review task when it crosses High.',
   }),
   ZAPIER: stub({
     provider: 'ZAPIER', category: 'WORKFLOW_AUTOMATION', displayName: 'Zapier',
-    description: 'Rule-based automation on chnnl events, built on the internal event system as just another subscriber.',
+    description: 'Rule-based automation on Realtime events, built on the internal event system as just another subscriber.',
   }),
   MAKE: stub({
     provider: 'MAKE', category: 'WORKFLOW_AUTOMATION', displayName: 'Make',
-    description: 'Rule-based automation on chnnl events, built on the internal event system as just another subscriber.',
+    description: 'Rule-based automation on Realtime events, built on the internal event system as just another subscriber.',
   }),
 };
 

@@ -29,7 +29,7 @@ export function AppSidebar({
           <ShieldCheck className="h-4 w-4" />
         </div>
         <div>
-          <p className="text-sm font-semibold leading-none">chnnl</p>
+          <p className="text-sm font-semibold leading-none">Realtime</p>
           <p className="text-[11px] leading-none text-muted-foreground">{title}</p>
         </div>
       </div>

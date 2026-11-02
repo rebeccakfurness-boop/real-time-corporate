@@ -31,7 +31,7 @@ export default async function IntegrationsPage({
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Integrations</h1>
         <p className="text-sm text-muted-foreground">
-          Connect chnnl to your existing tools. A connector failure never affects check-ins, dashboards or any
+          Connect Realtime to your existing tools. A connector failure never affects check-ins, dashboards or any
           other core feature — each one runs in its own isolated module.
         </p>
       </div>

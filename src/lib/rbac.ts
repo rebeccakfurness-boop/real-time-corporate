@@ -6,7 +6,7 @@ import type { PlatformRole } from '@prisma/client';
  * roles, by the scope below (own team / own department) — never by role name alone.
  *
  * Note: PlatformRole is entirely org-scoped, even ORG_OWNER — it never spans tenants.
- * chnnl's own cross-tenant staff are a structurally separate concept: see
+ * Realtime's own cross-tenant staff are a structurally separate concept: see
  * PlatformStaffAccount / src/lib/platform/*.
  */
 export type DataScope = 'ORGANISATION' | 'DEPARTMENT' | 'TEAM' | 'SELF';

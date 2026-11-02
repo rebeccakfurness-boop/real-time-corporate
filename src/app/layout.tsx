@@ -23,9 +23,9 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: 'chnnl — Psychological Safety & Wellbeing Intelligence',
+  title: 'Realtime Wellbeing — Psychological Safety & Wellbeing Intelligence',
   description:
-    'chnnl is an enterprise platform for continuously measuring workforce wellbeing, psychological safety and psychosocial risk.',
+    'Realtime Wellbeing is an enterprise platform for continuously measuring workforce wellbeing, psychological safety and psychosocial risk.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -22,7 +22,7 @@ export function PlatformSignInForm() {
   return (
     <Card className="border-warning/40">
       <CardHeader>
-        <CardTitle className="text-foreground text-base font-semibold">chnnl staff sign in</CardTitle>
+        <CardTitle className="text-foreground text-base font-semibold">Realtime staff sign in</CardTitle>
         <CardDescription>Internal only. This is a separate identity space from any customer organisation.</CardDescription>
       </CardHeader>
       <CardContent>

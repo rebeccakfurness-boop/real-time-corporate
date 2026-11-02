@@ -1,8 +1,8 @@
-# chnnl
+# Realtime Wellbeing
 
 **Enterprise Psychological Safety, Wellbeing & Psychosocial Risk Intelligence Platform.**
 
-chnnl is not an employee engagement survey tool. It's a management platform: organisations
+Realtime Wellbeing is not an employee engagement survey tool. It's a management platform: organisations
 continuously measure workforce wellbeing, psychological safety and psychosocial risk, and every
 insight is designed to lead directly into a recommendation, an owner and an action — not just a
 chart. Every wellbeing/risk data surface is pseudonymous by construction: an organisation's own
@@ -27,18 +27,18 @@ Demo tenant accounts (all seeded with the same password, printed at the end of `
 
 | Role | Email |
 | --- | --- |
-| Organisation Owner | `owner@chnnl.demo` |
-| Organisation Admin | `admin@chnnl.demo` |
-| Executive | `exec@chnnl.demo` |
-| People & Culture | `peopleculture@chnnl.demo` |
-| Health & Safety | `healthsafety@chnnl.demo` |
-| Department Manager | `manager@chnnl.demo` |
-| Leader | `leader@chnnl.demo` |
-| Employee | `employee@chnnl.demo` |
+| Organisation Owner | `owner@realtime-wellbeing.com` |
+| Organisation Admin | `admin@realtime-wellbeing.com` |
+| Executive | `exec@realtime-wellbeing.com` |
+| People & Culture | `peopleculture@realtime-wellbeing.com` |
+| Health & Safety | `healthsafety@realtime-wellbeing.com` |
+| Department Manager | `manager@realtime-wellbeing.com` |
+| Leader | `leader@realtime-wellbeing.com` |
+| Employee | `employee@realtime-wellbeing.com` |
 
-Demo platform staff (chnnl-internal, separate identity space — sign in at `/platform/sign-in`,
-password also printed at the end of `pnpm db:seed`): `staff-super@chnnl.internal` (Super Admin),
-`staff-safety@chnnl.internal` (Safety Officer), `staff-support@chnnl.internal` (Support). Break-glass
+Demo platform staff (Realtime-internal, separate identity space — sign in at `/platform/sign-in`,
+password also printed at the end of `pnpm db:seed`): `staff-super@realtime-wellbeing.com` (Super Admin),
+`staff-safety@realtime-wellbeing.com` (Safety Officer), `staff-support@realtime-wellbeing.com` (Support). Break-glass
 identity unlocks need two *different* staff members — request as one, approve as another.
 
 Or run everything (app + Postgres + Redis) in Docker:
@@ -78,7 +78,7 @@ just hidden in the UI:
   An ESLint rule (`.eslintrc.json`) additionally blocks importing the identity Prisma client or
   touching `identityRecord` from anywhere outside that folder.
 - **`platform` schema** (role `chnnl_platform`) — a wholly separate, cross-tenant identity space
-  for chnnl's own staff (`PlatformStaffAccount`, never an organisation-side role) and the
+  for Realtime's own staff (`PlatformStaffAccount`, never an organisation-side role) and the
   break-glass audit trail (`BreakGlassUnlock`).
 
 `infra/db/roles.sql` creates the three Postgres roles with real GRANTs — `chnnl_app` has zero access

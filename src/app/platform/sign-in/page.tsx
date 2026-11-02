@@ -9,7 +9,7 @@ export default function PlatformSignInPage() {
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-warning text-warning-foreground">
             <ShieldAlert className="h-5 w-5" />
           </div>
-          <h1 className="text-xl font-semibold">chnnl Platform</h1>
+          <h1 className="text-xl font-semibold">Realtime Platform</h1>
           <p className="text-sm text-muted-foreground">Cross-tenant staff console</p>
         </div>
         <PlatformSignInForm />

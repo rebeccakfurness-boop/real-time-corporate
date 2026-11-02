@@ -13,5 +13,5 @@ if (process.env.NODE_ENV !== 'production') globalForRedis.redis = redis;
 
 /** Pub/sub channel for de-identified organisational activity, fanned out to SSE clients. */
 export function activityChannel(organizationId: string) {
-  return `chnnl:activity:${organizationId}`;
+  return `realtime:activity:${organizationId}`;
 }

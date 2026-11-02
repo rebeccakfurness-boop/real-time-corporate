@@ -15,8 +15,8 @@ import { RISK_CATEGORY_DOMAIN } from '../src/lib/labels';
 
 const prisma = new PrismaClient();
 
-const DEMO_PASSWORD = 'ChnnlDemo123!';
-const PLATFORM_STAFF_PASSWORD = 'ChnnlPlatformStaff123!';
+const DEMO_PASSWORD = 'RealtimeDemo123!';
+const PLATFORM_STAFF_PASSWORD = 'RealtimeStaff123!';
 
 const FIRST_NAMES = [
   'Amelia', 'Noah', 'Isla', 'Liam', 'Mia', 'Oliver', 'Ava', 'Lucas', 'Charlotte', 'Ethan',
@@ -46,7 +46,7 @@ const DOMAINS: WellbeingDomain[] = [
 ];
 
 async function main() {
-  console.log('Seeding chnnl demo data…');
+  console.log('Seeding Realtime Wellbeing demo data…');
   const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 12);
 
   const org = await prisma.organization.upsert({
@@ -103,14 +103,14 @@ async function main() {
 
   // Named leadership accounts — one per role, easy to demo with
   const namedAccounts: { email: string; name: string; role: PlatformRole }[] = [
-    { email: 'owner@chnnl.demo', name: 'Priya Sharma', role: 'ORG_OWNER' },
-    { email: 'admin@chnnl.demo', name: 'Daniel Cohen', role: 'ORG_ADMIN' },
-    { email: 'exec@chnnl.demo', name: 'Grace Robinson', role: 'EXECUTIVE' },
-    { email: 'peopleculture@chnnl.demo', name: 'Aroha Ngata', role: 'PEOPLE_AND_CULTURE' },
-    { email: 'healthsafety@chnnl.demo', name: 'Wei Zhang', role: 'HEALTH_AND_SAFETY' },
-    { email: 'manager@chnnl.demo', name: 'Carlos Garcia', role: 'DEPARTMENT_MANAGER' },
-    { email: 'leader@chnnl.demo', name: 'Sofia Rossi', role: 'LEADER' },
-    { email: 'employee@chnnl.demo', name: 'Jack Wright', role: 'EMPLOYEE' },
+    { email: 'owner@realtime-wellbeing.com', name: 'Priya Sharma', role: 'ORG_OWNER' },
+    { email: 'admin@realtime-wellbeing.com', name: 'Daniel Cohen', role: 'ORG_ADMIN' },
+    { email: 'exec@realtime-wellbeing.com', name: 'Grace Robinson', role: 'EXECUTIVE' },
+    { email: 'peopleculture@realtime-wellbeing.com', name: 'Aroha Ngata', role: 'PEOPLE_AND_CULTURE' },
+    { email: 'healthsafety@realtime-wellbeing.com', name: 'Wei Zhang', role: 'HEALTH_AND_SAFETY' },
+    { email: 'manager@realtime-wellbeing.com', name: 'Carlos Garcia', role: 'DEPARTMENT_MANAGER' },
+    { email: 'leader@realtime-wellbeing.com', name: 'Sofia Rossi', role: 'LEADER' },
+    { email: 'employee@realtime-wellbeing.com', name: 'Jack Wright', role: 'EMPLOYEE' },
   ];
 
   const seniorities = ['EXECUTIVE', 'SENIOR_LEADER', 'MANAGER', 'TEAM_LEAD', 'INDIVIDUAL_CONTRIBUTOR'] as const;
@@ -555,13 +555,13 @@ async function main() {
   });
   console.log('Seeded an example Microsoft 365 connector installation.');
 
-  // Platform staff — the cross-tenant, chnnl-internal role. Separate identity space
+  // Platform staff — the cross-tenant, Realtime-internal role. Separate identity space
   // entirely (platform schema), never an organisation-side role.
   const platformStaffPasswordHash = await bcrypt.hash(PLATFORM_STAFF_PASSWORD, 12);
   const staffDefs = [
-    { email: 'staff-super@chnnl.internal', name: 'Kate Sullivan', role: 'SUPER_ADMIN' as const },
-    { email: 'staff-safety@chnnl.internal', name: 'Marcus Webb', role: 'SAFETY_OFFICER' as const },
-    { email: 'staff-support@chnnl.internal', name: 'Amina Yusuf', role: 'SUPPORT' as const },
+    { email: 'staff-super@realtime-wellbeing.com', name: 'Kate Sullivan', role: 'SUPER_ADMIN' as const },
+    { email: 'staff-safety@realtime-wellbeing.com', name: 'Marcus Webb', role: 'SAFETY_OFFICER' as const },
+    { email: 'staff-support@realtime-wellbeing.com', name: 'Amina Yusuf', role: 'SUPPORT' as const },
   ];
   for (const staff of staffDefs) {
     await platformDb.platformStaffAccount.upsert({
@@ -575,7 +575,7 @@ async function main() {
   console.log('\nDemo login (all tenant accounts share one password):');
   console.log(`  Password: ${DEMO_PASSWORD}`);
   for (const acc of namedAccounts) console.log(`  ${acc.role.padEnd(20)} ${acc.email}`);
-  console.log('\nPlatform staff login (chnnl-internal, /platform/sign-in):');
+  console.log('\nPlatform staff login (Realtime-internal, /platform/sign-in):');
   console.log(`  Password: ${PLATFORM_STAFF_PASSWORD}`);
   for (const staff of staffDefs) console.log(`  ${staff.role.padEnd(14)} ${staff.email}`);
 }

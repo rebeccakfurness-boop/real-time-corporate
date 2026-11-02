@@ -7,7 +7,7 @@ export default function PrivacyPage() {
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <ShieldCheck className="h-5 w-5" />
         </div>
-        <h1 className="text-2xl font-semibold">How chnnl protects your privacy</h1>
+        <h1 className="text-2xl font-semibold">How Realtime protects your privacy</h1>
       </div>
 
       <section className="flex flex-col gap-2">
@@ -37,10 +37,10 @@ export default function PrivacyPage() {
       <section className="flex flex-col gap-2">
         <h2 className="text-lg font-semibold">The one exception: genuine safety situations</h2>
         <p className="text-sm leading-relaxed text-muted-foreground">
-          chnnl (not your employer) maintains a separate, tightly controlled process that can, in rare
+          Realtime (not your employer) maintains a separate, tightly controlled process that can, in rare
           circumstances, re-identify who a piece of data belongs to — for example, if a Speak Up report or check-in
           pattern suggests an imminent risk of harm to you or someone else. This is not a routine feature: it
-          requires a documented reason, approval from a second, independent member of chnnl&apos;s safety staff, is
+          requires a documented reason, approval from a second, independent member of Realtime&apos;s safety staff, is
           time-limited once granted, and is fully logged. Your employer does not automatically gain access to your
           identity even when this process is used — any further step involving your organisation is a separate,
           explicit process, and wherever possible happens with your knowledge.
@@ -50,7 +50,7 @@ export default function PrivacyPage() {
       <section className="flex flex-col gap-2">
         <h2 className="text-lg font-semibold">In short</h2>
         <p className="text-sm leading-relaxed text-muted-foreground">
-          Your organisation cannot see who you are from your wellbeing data — full stop, under any role. chnnl
+          Your organisation cannot see who you are from your wellbeing data — full stop, under any role. Realtime
           itself can, only through the controlled safety process above, only when there&apos;s a genuine indication
           you or someone else may be at risk of harm.
         </p>

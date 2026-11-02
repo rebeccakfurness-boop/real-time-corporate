@@ -58,7 +58,7 @@ function orgContextBlock(ctx: OrgAssistantContext): string {
   ].join('\n');
 }
 
-const SYSTEM_PROMPT = `You are the AI Risk Assistant inside chnnl, an enterprise psychosocial risk intelligence platform. \
+const SYSTEM_PROMPT = `You are the AI Risk Assistant inside Realtime, an enterprise psychosocial risk intelligence platform. \
 You answer a leader's question using ONLY the aggregated data provided in the context — never invent scores, \
 department names, or people. Never speculate about or reference any named individual — everything you discuss is \
 at the organisation, department or risk-category level. Keep answers concise (3-6 sentences or a short bulleted \
